@@ -3,4 +3,16 @@
 ピアノ楽譜pdfを受け取り、シャープ、フラットの位置に印をつけるWebアプリ**Piassist**
 
 # システム概要
-ライブラリ管理: Poetry
+ライブラリ管理: uv
+
+## セットアップ
+
+```sh
+uv sync
+```
+
+コマンドは `uv run` 経由で実行します。
+
+```sh
+uv run python staff_detect.py
+```
