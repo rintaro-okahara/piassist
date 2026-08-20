@@ -1,1 +1,13 @@
 .venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+tmp/
+output/
+web/assets/*.whl
+web/samples/*.pdf
+
+# User-provided score files stay local by default. Add an explicit negation
+# rule only for a deliberately publishable fixture.
+*.[pP][dD][fF]
+*_pages/
