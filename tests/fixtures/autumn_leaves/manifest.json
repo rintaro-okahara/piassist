@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "fixture_id": "autumn_leaves_musescore_vector",
+  "description": "Real-world vector score PDF and manually annotated golden output for accidental-marking regression tests.",
+  "provenance": {
+    "title": "20211116_Autumn_Leaves_House_ALL",
+    "source_application": "MuseScore",
+    "pdf_producer": "macOS 10.15.7 Quartz PDFContext",
+    "score_font": "Leland (SMuFL)",
+    "pdf_creation_date": "2022-02-14T14:32:26Z",
+    "expected_annotation_method": "Reference PDF containing red vector ellipses at the expected accidental-note positions."
+  },
+  "files": {
+    "input": {
+      "path": "input.pdf",
+      "role": "unannotated_input",
+      "sha256": "d9eb99a774edb1bd0f3dc4bd3119146ccccf2b0263a8f505a8a0eb6fcb957ecb",
+      "pages": 11,
+      "red_circles": 0
+    },
+    "expected_annotated": {
+      "path": "expected_annotated.pdf",
+      "role": "golden_output",
+      "sha256": "8cd3ec83f26da957ededd9d9abde208975a18f760371cdc022f7ba084d882a0d",
+      "pages": 11,
+      "red_circles": 696
+    }
+  },
+  "score_structure": {
+    "staffs_by_page": [12, 10, 10, 10, 10, 10, 10, 10, 9, 10, 2],
+    "detected_notes": 2041
+  },
+  "expected_annotations": {
+    "red_circles_by_page": [66, 58, 67, 84, 83, 83, 41, 68, 84, 56, 6],
+    "total_red_circles": 696
+  },
+  "evaluation": {
+    "method": "Greedy one-to-one nearest-center matching of red vector ellipses within each page.",
+    "center_tolerance_points": 1.5,
+    "key_signature_override": ["B-flat", "E-flat"],
+    "result": {
+      "matched_circles": 687,
+      "predicted_circles": 697,
+      "expected_circles": 696,
+      "false_positives": 10,
+      "false_negatives": 9,
+      "precision_percent": 98.57,
+      "recall_percent": 98.71
+    }
+  }
+}

@@ -4,10 +4,10 @@ import pytest
 
 from piassist.api import annotate_pdf_file
 
-FIXTURE = Path(__file__).parent / "fixtures" / "autumn_leaves_input.pdf"
+FIXTURE = Path(__file__).parent / "fixtures" / "autumn_leaves" / "input.pdf"
 pytestmark = pytest.mark.skipif(
     not FIXTURE.is_file(),
-    reason="local-only Autumn Leaves fixture is not installed",
+    reason="Autumn Leaves fixture is not installed",
 )
 
 

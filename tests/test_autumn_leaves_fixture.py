@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 from statistics import median
 
@@ -12,16 +13,12 @@ from piassist.music_logic import AnnotationOptions, MusicAnalyzer
 from piassist.render import PDFRenderer
 from piassist.vector_pdf import VectorPDFParser
 
-INPUT = Path(__file__).parent / "fixtures" / "autumn_leaves_input.pdf"
-EXPECTED = Path(__file__).parent / "fixtures" / "autumn_leaves_expected_annotated.pdf"
-INPUT_SHA256 = "d9eb99a774edb1bd0f3dc4bd3119146ccccf2b0263a8f505a8a0eb6fcb957ecb"
-EXPECTED_SHA256 = "8cd3ec83f26da957ededd9d9abde208975a18f760371cdc022f7ba084d882a0d"
-EXPECTED_STAFFS = [12, 10, 10, 10, 10, 10, 10, 10, 9, 10, 2]
-EXPECTED_RED_CIRCLES = [66, 58, 67, 84, 83, 83, 41, 68, 84, 56, 6]
-pytestmark = pytest.mark.skipif(
-    not INPUT.is_file() or not EXPECTED.is_file(),
-    reason="local-only Autumn Leaves fixtures are not installed",
-)
+FIXTURE_DIR = Path(__file__).parent / "fixtures" / "autumn_leaves"
+INPUT = FIXTURE_DIR / "input.pdf"
+EXPECTED = FIXTURE_DIR / "expected_annotated.pdf"
+MANIFEST = json.loads((FIXTURE_DIR / "manifest.json").read_text())
+EXPECTED_STAFFS = MANIFEST["score_structure"]["staffs_by_page"]
+EXPECTED_RED_CIRCLES = MANIFEST["expected_annotations"]["red_circles_by_page"]
 
 
 def _is_red(drawing: dict[str, object]) -> bool:
@@ -32,14 +29,24 @@ def _is_red(drawing: dict[str, object]) -> bool:
 
 
 def test_input_and_expected_pdf_integrity() -> None:
-    assert hashlib.sha256(INPUT.read_bytes()).hexdigest() == INPUT_SHA256
-    assert hashlib.sha256(EXPECTED.read_bytes()).hexdigest() == EXPECTED_SHA256
+    assert (
+        hashlib.sha256(INPUT.read_bytes()).hexdigest()
+        == MANIFEST["files"]["input"]["sha256"]
+    )
+    assert (
+        hashlib.sha256(EXPECTED.read_bytes()).hexdigest()
+        == MANIFEST["files"]["expected_annotated"]["sha256"]
+    )
 
     with (
         pymupdf.open(INPUT) as input_document,
         pymupdf.open(EXPECTED) as expected_document,
     ):
-        assert len(input_document) == len(expected_document) == 11
+        expected_pages = MANIFEST["files"]["input"]["pages"]
+        assert len(input_document) == len(expected_document) == expected_pages
+        assert sum(EXPECTED_RED_CIRCLES) == MANIFEST["expected_annotations"][
+            "total_red_circles"
+        ]
         for page_number, (input_page, expected_page) in enumerate(
             zip(input_document, expected_document, strict=True)
         ):
@@ -108,11 +115,15 @@ def test_end_to_end_annotation_quality_against_golden_pdf(tmp_path: Path) -> Non
     )
     generated_count = sum(len(centers) for centers in generated_centers.values())
     expected_count = sum(len(centers) for centers in expected_centers.values())
+    precision = matches / generated_count
+    recall = matches / expected_count
 
-    # Characterization baseline for the first real-world fixture. Raising these
-    # thresholds is encouraged as parser accuracy improves.
-    assert matches / generated_count >= 0.98  # precision
-    assert matches / expected_count >= 0.985  # recall
+    recorded = MANIFEST["evaluation"]["result"]
+    assert matches == recorded["matched_circles"]
+    assert generated_count == recorded["predicted_circles"]
+    assert expected_count == recorded["expected_circles"]
+    assert precision * 100 == pytest.approx(recorded["precision_percent"], abs=0.005)
+    assert recall * 100 == pytest.approx(recorded["recall_percent"], abs=0.005)
     assert median(width for width, _ in generated_sizes) == pytest.approx(
         median(width for width, _ in expected_sizes), abs=0.1
     )

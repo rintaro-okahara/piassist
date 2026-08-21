@@ -108,4 +108,4 @@ uv run pytest
 
 テスト内で小さなベクターPDFを生成し、五線検出から調号・臨時記号の状態管理、PDF描画までを検証します。
 
-`tests/fixtures/` のPDFは開発環境だけに置き、gitには含めません。ローカルに赤丸なし入力と赤丸付き期待出力がある場合は、ページ構造、赤丸の中心座標、サイズを照合するgoldenテストも実行されます。現在のベースラインはprecision 98.6%、recall 98.7%です。
+`tests/fixtures/autumn_leaves/` には、MuseScoreで書き出された入力PDFと、正解の赤丸を含む期待出力PDFをgolden fixtureとして保存しています。生成元、ハッシュ、評価条件、実測値は同ディレクトリの `manifest.json` に記録し、テスト時にも検証します。現在の座標照合結果はprecision 98.57%、recall 98.71%です。
