@@ -11,3 +11,7 @@ web/samples/*.pdf
 # rule only for a deliberately publishable fixture.
 *.[pP][dD][fF]
 *_pages/
+
+# Deliberately publishable golden-test PDFs. Keep all other PDFs local.
+!tests/fixtures/autumn_leaves/input.pdf
+!tests/fixtures/autumn_leaves/expected_annotated.pdf
