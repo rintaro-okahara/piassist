@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "fixture_id": "aura_lee_dorico_vector",
+  "description": "Dorico vector score regression fixture using SMuFL oversized notehead alternates.",
+  "provenance": {
+    "title": "Aura Lee",
+    "source_application": "Dorico",
+    "pdf_producer": "Qt 5.10.1",
+    "score_font": "Bravura (SMuFL)",
+    "pdf_creation_date": "2018-07-05T11:54:14+09:00",
+    "expected_annotation_method": null
+  },
+  "files": {
+    "input": {
+      "path": "input.pdf",
+      "role": "unannotated_input",
+      "sha256": "0533dcf93616ef70e04c44e7dacde990d1245d29a49395dfb8f9ca15bc49a5a6",
+      "pages": 2,
+      "images_by_page": [0, 0]
+    }
+  },
+  "score_structure": {
+    "staffs_by_page": [9, 9],
+    "detected_notes_by_page": [119, 147],
+    "detected_notes": 266,
+    "detected_accidentals_by_page": [5, 10]
+  },
+  "smufl_oversized_noteheads": {
+    "codepoints": {
+      "U+F4BC": "noteheadWholeOversized",
+      "U+F4BD": "noteheadHalfOversized",
+      "U+F4BE": "noteheadBlackOversized"
+    },
+    "counts_by_page": {
+      "U+F4BC": [6, 13],
+      "U+F4BD": [39, 54],
+      "U+F4BE": [74, 80]
+    }
+  },
+  "inspection_baseline": {
+    "raw_characters_by_page": [351, 284],
+    "horizontal_lines_by_page": [92, 95],
+    "recognized_symbols_by_page": [
+      {
+        "notehead": 119,
+        "sharp": 2,
+        "natural": 2,
+        "flat": 1,
+        "bass-clef": 6,
+        "treble-clef": 3
+      },
+      {
+        "notehead": 147,
+        "sharp": 3,
+        "natural": 4,
+        "flat": 3,
+        "bass-clef": 6,
+        "treble-clef": 3
+      }
+    ]
+  },
+  "annotation_baseline": {
+    "status": "implementation_baseline_without_manually_verified_golden_output",
+    "predicted_marks_by_page": [3, 6],
+    "predicted_marks": 9
+  }
+}

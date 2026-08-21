@@ -7,7 +7,11 @@ import pytest
 from piassist.models import BBox, Clef, Glyph, Staff, SymbolKind
 from piassist.music_logic import MusicAnalyzer
 from piassist.render import OutputExistsError, PDFRenderer
-from piassist.vector_pdf import UnsupportedVectorPdfError, VectorPDFParser
+from piassist.vector_pdf import (
+    NOTEHEAD_CODEPOINTS,
+    UnsupportedVectorPdfError,
+    VectorPDFParser,
+)
 
 
 class SyntheticVectorParser(VectorPDFParser):
@@ -108,6 +112,11 @@ def test_text_font_accidental_is_not_treated_as_notation(
     glyphs = parser._extract_glyphs(None, 0)  # type: ignore[arg-type]  # noqa: SLF001
 
     assert [glyph.char for glyph in glyphs] == ["♭", "\ue260"]
+
+
+@pytest.mark.parametrize("codepoint", range(0xF4BC, 0xF4BF))
+def test_smufl_oversized_notehead_is_recognized(codepoint: int) -> None:
+    assert chr(codepoint) in NOTEHEAD_CODEPOINTS
 
 
 def test_notehead_on_extended_ledger_line_is_assigned_to_staff() -> None:
