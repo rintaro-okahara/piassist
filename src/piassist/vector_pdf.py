@@ -27,10 +27,12 @@ class UnsupportedVectorPdfError(RuntimeError):
     """Raised when a PDF does not expose enough vector score information."""
 
 
-# SMuFL code points used by Bravura and most modern notation fonts.  The
-# Unicode alternatives make inspection and small synthetic fixtures useful too.
+# SMuFL's standard noteheads plus the recommended oversized alternates that
+# Dorico may preserve in exported PDFs. The Unicode alternative makes small
+# synthetic fixtures useful too.
 NOTEHEAD_CODEPOINTS = {
     *(chr(codepoint) for codepoint in range(0xE0A0, 0xE0AA)),
+    *(chr(codepoint) for codepoint in range(0xF4BC, 0xF4BF)),
     "●",
 }
 SYMBOLS: dict[str, SymbolKind] = {

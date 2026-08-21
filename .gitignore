@@ -15,3 +15,4 @@ web/samples/*.pdf
 # Deliberately publishable golden-test PDFs. Keep all other PDFs local.
 !tests/fixtures/autumn_leaves/input.pdf
 !tests/fixtures/autumn_leaves/expected_annotated.pdf
+!tests/fixtures/aura_lee_dorico/input.pdf
