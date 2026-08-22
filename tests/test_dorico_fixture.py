@@ -38,6 +38,11 @@ def test_dorico_oversized_noteheads_are_parsed() -> None:
     assert [len(page.accidentals) for page in score.pages] == expected[
         "detected_accidentals_by_page"
     ]
+    assert [len(page.ties) for page in score.pages] == expected["detected_ties_by_page"]
+    assert any(
+        tie.source_note_id == "p0-g20" and tie.target_note_id == "p0-g22"
+        for tie in score.pages[0].ties
+    )
 
 
 def test_dorico_inspection_matches_manifest() -> None:

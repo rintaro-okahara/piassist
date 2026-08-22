@@ -42,11 +42,58 @@ class SyntheticVectorParser(VectorPDFParser):
         ]
 
 
+class TiedSyntheticVectorParser(VectorPDFParser):
+    def _extract_glyphs(self, page: pymupdf.Page, page_number: int) -> list[Glyph]:
+        del page
+        return [
+            Glyph(
+                id="clef",
+                page=page_number,
+                kind=SymbolKind.TREBLE_CLEF,
+                char="\ue050",
+                bbox=BBox(12, 16, 24, 64),
+            ),
+            Glyph(
+                id="tie-source",
+                page=page_number,
+                kind=SymbolKind.NOTEHEAD,
+                char="\ue0a4",
+                bbox=BBox(87, 37, 93, 43),
+            ),
+            Glyph(
+                id="tie-target",
+                page=page_number,
+                kind=SymbolKind.NOTEHEAD,
+                char="\ue0a4",
+                bbox=BBox(107, 37, 113, 43),
+            ),
+        ]
+
+
 def make_vector_pdf(path: Path) -> None:
     document = pymupdf.open()
     page = document.new_page(width=200, height=120)
     for y in (20, 30, 40, 50, 60):
         page.draw_line((10, y), (190, y), width=0.4)
+    document.save(path)
+    document.close()
+
+
+def make_tied_vector_pdf(path: Path) -> None:
+    document = pymupdf.open()
+    page = document.new_page(width=200, height=120)
+    for y in (20, 30, 40, 50, 60):
+        page.draw_line((10, y), (190, y), width=0.4)
+    page.draw_line((100, 20), (100, 60), width=0.4)
+
+    tie = page.new_shape()
+    start = pymupdf.Point(93, 45)
+    end = pymupdf.Point(107, 45)
+    tie.draw_bezier(start, pymupdf.Point(97, 49), pymupdf.Point(103, 49), end)
+    tie.draw_bezier(end, pymupdf.Point(103, 47), pymupdf.Point(97, 47), start)
+    tie.finish(fill=(0, 0, 0), color=None, closePath=True)
+    tie.commit()
+
     document.save(path)
     document.close()
 
@@ -91,6 +138,21 @@ def test_inspection_reports_staff_geometry(tmp_path: Path) -> None:
 
     assert result["pages"][0]["detected_staff_count"] == 1
     assert json.loads(json.dumps(result))["pages"][0]["horizontal_line_count"] == 5
+
+
+def test_vector_pdf_detects_tie_between_matching_noteheads(tmp_path: Path) -> None:
+    source = tmp_path / "tied-score.pdf"
+    make_tied_vector_pdf(source)
+
+    score = TiedSyntheticVectorParser().parse(source)
+
+    assert [(note.id, note.measure) for note in score.pages[0].notes] == [
+        ("tie-source", 0),
+        ("tie-target", 1),
+    ]
+    assert [
+        (tie.source_note_id, tie.target_note_id) for tie in score.pages[0].ties
+    ] == [("tie-source", "tie-target")]
 
 
 def test_text_font_accidental_is_not_treated_as_notation(

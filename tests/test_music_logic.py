@@ -10,6 +10,7 @@ from piassist.models import (
     RawNote,
     ScoreAnalysis,
     Staff,
+    Tie,
 )
 from piassist.music_logic import (
     AnnotationMode,
@@ -138,6 +139,60 @@ def test_accidental_association_ignores_spurious_measure_boundary() -> None:
     )
 
     assert associated == {"f-sharp": Accidental.SHARP}
+
+
+def test_tied_accidental_is_carried_across_barline_only_to_target() -> None:
+    staff = Staff(
+        page=0,
+        index=0,
+        line_ys=(10, 20, 30, 40, 50),
+        x0=10,
+        x1=190,
+        clef=Clef.TREBLE,
+        barlines=[150],
+    )
+    sharp = RawAccidental(
+        id="sharp",
+        page=0,
+        staff=0,
+        bbox=BBox(130, 27, 134, 33),
+        accidental=Accidental.SHARP,
+        letter="B",
+        octave=4,
+    )
+    score = ScoreAnalysis(
+        pages=[
+            PageAnalysis(
+                page=0,
+                staffs=[staff],
+                notes=[note("n1", 140, 0), note("n2", 160, 1), note("n3", 180, 1)],
+                ties=[
+                    Tie(
+                        source_note_id="n1",
+                        target_note_id="n2",
+                        page=0,
+                        staff=0,
+                        bbox=BBox(142, 32, 158, 36),
+                    )
+                ],
+                accidentals=[sharp],
+            )
+        ]
+    )
+
+    result = MusicAnalyzer().analyze(score)
+
+    assert [item.effective_accidental for item in result.notes] == [
+        Accidental.SHARP,
+        Accidental.SHARP,
+        None,
+    ]
+    assert [item.source for item in result.notes] == [
+        AccidentalSource.EXPLICIT,
+        AccidentalSource.TIED,
+        None,
+    ]
+    assert [item.should_mark for item in result.notes] == [True, True, False]
 
 
 def test_parse_key_signature() -> None:
