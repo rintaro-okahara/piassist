@@ -23,7 +23,8 @@
     "staffs_by_page": [9, 9],
     "detected_notes_by_page": [119, 147],
     "detected_notes": 266,
-    "detected_accidentals_by_page": [5, 10]
+    "detected_accidentals_by_page": [5, 10],
+    "detected_ties_by_page": [35, 24]
   },
   "smufl_oversized_noteheads": {
     "codepoints": {
@@ -61,7 +62,7 @@
   },
   "annotation_baseline": {
     "status": "implementation_baseline_without_manually_verified_golden_output",
-    "predicted_marks_by_page": [3, 6],
-    "predicted_marks": 9
+    "predicted_marks_by_page": [4, 7],
+    "predicted_marks": 11
   }
 }

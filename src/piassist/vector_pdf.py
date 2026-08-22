@@ -20,6 +20,7 @@ from piassist.models import (
     ScoreAnalysis,
     Staff,
     SymbolKind,
+    Tie,
 )
 
 
@@ -165,10 +166,12 @@ class VectorPDFParser:
         accidentals = self._make_accidentals(staffs, accidental_glyphs)
         self._assign_barlines(staffs, vertical, notes)
         notes = self._assign_measures(staffs, notes)
+        ties = self._detect_ties(page, staffs, notes)
         return PageAnalysis(
             page=page_number,
             staffs=staffs,
             notes=notes,
+            ties=ties,
             accidentals=accidentals,
         )
 
@@ -425,6 +428,101 @@ class VectorPDFParser:
             staff.barlines = self._dedupe_positions(
                 candidates, tolerance=max(0.8, staff.spacing * 0.2)
             )
+
+    def _detect_ties(
+        self,
+        page: pymupdf.Page,
+        staffs: list[Staff],
+        notes: list[RawNote],
+    ) -> list[Tie]:
+        """Infer ties from narrow, filled two-curve paths in a vector score.
+
+        Dorico exports both ties and slurs as filled Bezier paths. A tie is
+        distinguished here by its compact lens shape and by having matching
+        noteheads at both endpoints on the same staff and pitch.
+        """
+        ties: list[Tie] = []
+        seen: set[tuple[str, str]] = set()
+        notes_by_staff = {
+            staff.index: [note for note in notes if note.staff == staff.index]
+            for staff in staffs
+        }
+
+        for drawing in page.get_drawings():
+            items = drawing.get("items", [])
+            curve_count = sum(item and item[0] == "c" for item in items)
+            if (
+                drawing.get("type") != "f"
+                or curve_count != 2
+                or any(item and item[0] not in {"c", "l"} for item in items)
+            ):
+                continue
+
+            rect = pymupdf.Rect(drawing["rect"])
+            if rect.width <= 0 or rect.height <= 0:
+                continue
+            bbox = BBox(rect.x0, rect.y0, rect.x1, rect.y1)
+
+            for staff in staffs:
+                tie = self._match_tie_path(bbox, staff, notes_by_staff[staff.index])
+                if tie is None:
+                    continue
+                pair = (tie.source_note_id, tie.target_note_id)
+                if pair not in seen:
+                    ties.append(tie)
+                    seen.add(pair)
+                break
+
+        return ties
+
+    @staticmethod
+    def _match_tie_path(bbox: BBox, staff: Staff, notes: list[RawNote]) -> Tie | None:
+        spacing = staff.spacing
+        if not (
+            spacing * 0.5 <= bbox.x1 - bbox.x0 <= spacing * 25
+            and bbox.y1 - bbox.y0 <= spacing * 2
+        ):
+            return None
+
+        endpoint_tolerance = spacing * 2.5
+        source_candidates = [
+            note
+            for note in notes
+            if abs(note.x - bbox.x0) <= endpoint_tolerance
+            and abs(note.y - bbox.center_y) <= endpoint_tolerance
+        ]
+        target_candidates = [
+            note
+            for note in notes
+            if abs(note.x - bbox.x1) <= endpoint_tolerance
+            and abs(note.y - bbox.center_y) <= endpoint_tolerance
+        ]
+        matches = [
+            (source, target)
+            for source in source_candidates
+            for target in target_candidates
+            if source.x < target.x
+            and (source.letter, source.octave) == (target.letter, target.octave)
+        ]
+        if not matches:
+            return None
+
+        source, target = min(
+            matches,
+            key=lambda pair: (
+                abs(pair[0].x - bbox.x0)
+                + abs(pair[1].x - bbox.x1)
+                + abs(pair[0].y - bbox.center_y)
+                + abs(pair[1].y - bbox.center_y)
+            ),
+        )
+        return Tie(
+            source_note_id=source.id,
+            target_note_id=target.id,
+            page=staff.page,
+            staff=staff.index,
+            bbox=bbox,
+        )
 
     @staticmethod
     def _dedupe_positions(values: list[float], tolerance: float) -> list[float]:

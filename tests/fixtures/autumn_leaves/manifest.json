@@ -40,11 +40,11 @@
     "key_signature_override": ["B-flat", "E-flat"],
     "result": {
       "matched_circles": 687,
-      "predicted_circles": 697,
+      "predicted_circles": 699,
       "expected_circles": 696,
-      "false_positives": 10,
+      "false_positives": 12,
       "false_negatives": 9,
-      "precision_percent": 98.57,
+      "precision_percent": 98.28,
       "recall_percent": 98.71
     }
   }

@@ -19,6 +19,7 @@ class Accidental(StrEnum):
 class AccidentalSource(StrEnum):
     EXPLICIT = "explicit"
     CARRIED = "carried"
+    TIED = "tied"
     KEY_SIGNATURE = "keysig"
 
 
@@ -153,6 +154,26 @@ class RawNote:
 
 
 @dataclass(frozen=True, slots=True)
+class Tie:
+    """A visual tie inferred from a curved vector path between two noteheads."""
+
+    source_note_id: str
+    target_note_id: str
+    page: int
+    staff: int
+    bbox: BBox
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "source_note_id": self.source_note_id,
+            "target_note_id": self.target_note_id,
+            "page": self.page + 1,
+            "staff": self.staff,
+            "bbox": self.bbox.to_dict(),
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class RawAccidental:
     id: str
     page: int
@@ -192,6 +213,7 @@ class PageAnalysis:
     page: int
     staffs: list[Staff] = field(default_factory=list)
     notes: list[RawNote] = field(default_factory=list)
+    ties: list[Tie] = field(default_factory=list)
     accidentals: list[RawAccidental] = field(default_factory=list)
     key_signatures: dict[int, dict[str, Accidental]] = field(default_factory=dict)
 
@@ -207,12 +229,14 @@ class ScoreAnalysis:
                 "pages": len(self.pages),
                 "staffs": sum(len(page.staffs) for page in self.pages),
                 "notes": len(self.notes),
+                "ties": sum(len(page.ties) for page in self.pages),
                 "marked_notes": sum(note.should_mark for note in self.notes),
             },
             "pages": [
                 {
                     "page": page.page + 1,
                     "staffs": [staff.to_dict() for staff in page.staffs],
+                    "ties": [tie.to_dict() for tie in page.ties],
                     "key_signatures": {
                         str(staff): {
                             letter: accidental.value

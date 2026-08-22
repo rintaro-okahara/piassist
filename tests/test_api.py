@@ -25,6 +25,6 @@ def test_browser_facing_api_annotates_fixture(tmp_path: Path) -> None:
         "pages": 11,
         "staffs": 103,
         "notes": 2_041,
-        "marked_notes": 697,
+        "marked_notes": 699,
         "output_name": "autumn-leaves-annotated.pdf",
     }

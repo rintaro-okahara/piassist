@@ -12,6 +12,7 @@ from piassist.models import (
     RawNote,
     ScoreAnalysis,
     Staff,
+    Tie,
 )
 
 
@@ -86,7 +87,17 @@ class MusicAnalyzer:
                         if accidental.id not in key_signature_ids
                     ],
                 )
-                annotated.extend(self._apply_state(notes, explicit, key_signature))
+                notes_by_id = {note.id: note for note in notes}
+                ties = [
+                    tie
+                    for tie in page.ties
+                    if tie.staff == staff.index
+                    and notes_by_id[tie.source_note_id].measure
+                    != notes_by_id[tie.target_note_id].measure
+                ]
+                annotated.extend(
+                    self._apply_state(notes, explicit, key_signature, ties)
+                )
         score.notes = sorted(
             annotated,
             key=lambda item: (
@@ -185,9 +196,12 @@ class MusicAnalyzer:
         notes: list[RawNote],
         explicit: dict[str, Accidental],
         key_signature: dict[str, Accidental],
+        ties: Iterable[Tie] = (),
     ) -> list[AnnotatedNote]:
         result: list[AnnotatedNote] = []
         state: dict[tuple[str, int], Accidental] = {}
+        effective_by_note_id: dict[str, Accidental | None] = {}
+        tied_from = {tie.target_note_id: tie.source_note_id for tie in ties}
         current_measure: int | None = None
 
         for note in sorted(notes, key=lambda item: (item.measure, item.x, item.y)):
@@ -200,6 +214,9 @@ class MusicAnalyzer:
                 effective = explicit[note.id]
                 source = AccidentalSource.EXPLICIT
                 state[pitch] = effective
+            elif note.id in tied_from:
+                effective = effective_by_note_id.get(tied_from[note.id])
+                source = AccidentalSource.TIED if effective is not None else None
             elif pitch in state:
                 effective = state[pitch]
                 source = AccidentalSource.CARRIED
@@ -209,6 +226,8 @@ class MusicAnalyzer:
             else:
                 effective = None
                 source = None
+
+            effective_by_note_id[note.id] = effective
 
             result.append(
                 AnnotatedNote(
