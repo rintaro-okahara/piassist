@@ -1,0 +1,88 @@
+{
+  "schema_version": 2,
+  "fixture_id": "purcell_what_power_dorico_5_1_vector",
+  "description": "A native Dorico vector PDF validated note-by-note against the companion MusicXML export.",
+  "provenance": {
+    "title": "What power art thou? - Violino 1",
+    "composer": "Henry Purcell",
+    "lyricist": "John Dryden",
+    "editor": "Bas Cornelissen",
+    "copyright": "Copyright © Bas Cornelissen 2025",
+    "license": "CC-BY-SA-4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "upstream_commit": "93eb6dbe4c44ee2f89872065ea4adac7afc28f88",
+    "upstream_readme_url": "https://github.com/bacor/editions/blob/93eb6dbe4c44ee2f89872065ea4adac7afc28f88/editions/purcell-h/what-power-art-thou/README.md",
+    "upstream_pdf_url": "https://raw.githubusercontent.com/bacor/editions/93eb6dbe4c44ee2f89872065ea4adac7afc28f88/editions/purcell-h/what-power-art-thou/what-power-art-thou-violin-1.pdf",
+    "upstream_musicxml_url": "https://raw.githubusercontent.com/bacor/editions/93eb6dbe4c44ee2f89872065ea4adac7afc28f88/editions/purcell-h/what-power-art-thou/what-power-art-thou.musicxml",
+    "local_changes": "File contents are unchanged; the PDF and MusicXML were renamed for stable fixture paths.",
+    "derivation_notice": "The score is derived from Jean-Charles Malahieude's CC BY 3.0 edition, based on the Musical Antiquarian Society edition of Edward Taylor."
+  },
+  "export": {
+    "scope": "Native vector PDF exported directly from Dorico",
+    "pdf_creator": "Dorico 5.1.60.2187",
+    "pdf_producer": "Qt 6.5.0",
+    "pdf_creation_date": "2025-04-02T18:13:09+09:00",
+    "musicxml_software": "Dorico 5.1.81.2225",
+    "score_font": "Leland (SMuFL)"
+  },
+  "files": {
+    "input": {
+      "path": "input.pdf",
+      "role": "unannotated_input",
+      "sha256": "5c1bbd0f4aafaea90d1e8207b0dfed62c0f952bd86585bea5fef83ebb006d023",
+      "bytes": 42966,
+      "pages": 1,
+      "images_by_page": [0]
+    },
+    "oracle": {
+      "path": "oracle.musicxml",
+      "role": "independent_semantic_oracle",
+      "sha256": "7c96f7e32b3c92ebdb99089bcf2494a74289be21a37dc5299c2a29c1fd61aa42"
+    }
+  },
+  "verification": {
+    "status": "verified_against_upstream_musicxml_and_rendered_output",
+    "reviewed_on": "2026-11-15",
+    "oracle_part_id": "P1",
+    "oracle_part_name": "Violino 1",
+    "systems": 9,
+    "barlines_by_system": [4, 4, 4, 4, 4, 4, 4, 4, 4],
+    "measures": 36,
+    "notes": 281,
+    "notes_by_measure": [
+      8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+      8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+      8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1
+    ],
+    "marked_notes": 78,
+    "marked_notes_by_measure": [
+      4, 0, 0, 4, 4, 4, 0, 0, 4, 4, 0, 0,
+      0, 0, 0, 4, 4, 0, 0, 0, 2, 8, 4, 0,
+      4, 4, 4, 4, 2, 8, 0, 4, 0, 0, 2, 0
+    ],
+    "marked_note_ordinals_by_system": [
+      [5, 6, 7, 8, 29, 30, 31, 32],
+      [5, 6, 7, 8, 13, 14, 15, 16],
+      [5, 6, 7, 8, 9, 10, 11, 12],
+      [25, 26, 27, 28],
+      [1, 2, 3, 4],
+      [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 21, 22, 23, 24],
+      [5, 6, 7, 8, 9, 10, 11, 12, 17, 18, 19, 20, 25, 26, 27, 28],
+      [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 29, 30, 31, 32],
+      [19, 20]
+    ],
+    "marked_note_sources": {
+      "keysig": 64,
+      "explicit": 4,
+      "carried": 10,
+      "tied": 0
+    },
+    "acceptance": {
+      "matching_pitch_and_accidental_notes": 281,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    }
+  }
+}

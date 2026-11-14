@@ -162,11 +162,14 @@ def make_long_stem_vector_pdf(path: Path) -> None:
         page.draw_line((10, y), (190, y), width=0.4)
 
     # Both of these lines satisfy the old coarse barline heuristic. The first
-    # is a long stem attached to ``stem-note``; the second is an unrelated
-    # vertical mark that does not cover enough of the staff to be a barline.
-    page.draw_line((123, 10), (123, 55), width=0.4)
+    # is a long stem placed just outside ``stem-note``'s reported glyph box;
+    # the second is an unrelated vertical mark that does not cover enough of
+    # the staff to be a barline.
+    page.draw_line((123.5, 10), (123.5, 55), width=0.4)
     page.draw_line((150, 25), (150, 55), width=0.4)
+    # The two nearby full-height lines form one double-bar boundary.
     page.draw_line((160, 20), (160, 60), width=0.4)
+    page.draw_line((166, 20), (166, 60), width=0.4)
 
     document.save(path)
     document.close()
@@ -238,7 +241,7 @@ def test_barline_detection_rejects_long_stem_and_unrelated_vertical_line(
     score = LongStemSyntheticVectorParser().parse(source)
     staff = score.pages[0].staffs[0]
 
-    assert staff.barlines == pytest.approx([160])
+    assert staff.barlines == pytest.approx([163])
     assert [(note.id, note.measure) for note in score.pages[0].notes] == [
         ("first-note", 0),
         ("stem-note", 0),
