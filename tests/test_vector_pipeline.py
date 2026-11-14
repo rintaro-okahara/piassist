@@ -4,7 +4,15 @@ from pathlib import Path
 import pymupdf
 import pytest
 
-from piassist.models import BBox, Clef, Glyph, Staff, SymbolKind
+from piassist.models import (
+    Accidental,
+    AccidentalSource,
+    BBox,
+    Clef,
+    Glyph,
+    Staff,
+    SymbolKind,
+)
 from piassist.music_logic import MusicAnalyzer
 from piassist.render import OutputExistsError, PDFRenderer
 from piassist.vector_pdf import (
@@ -70,6 +78,55 @@ class TiedSyntheticVectorParser(VectorPDFParser):
         ]
 
 
+class LongStemSyntheticVectorParser(VectorPDFParser):
+    def _extract_glyphs(self, page: pymupdf.Page, page_number: int) -> list[Glyph]:
+        del page
+        return [
+            Glyph(
+                id="clef",
+                page=page_number,
+                kind=SymbolKind.TREBLE_CLEF,
+                char="\ue050",
+                bbox=BBox(12, 16, 24, 64),
+            ),
+            Glyph(
+                id="first-note",
+                page=page_number,
+                kind=SymbolKind.NOTEHEAD,
+                char="\ue0a4",
+                bbox=BBox(67, 47, 73, 53),
+            ),
+            Glyph(
+                id="sharp",
+                page=page_number,
+                kind=SymbolKind.SHARP,
+                char="\ue262",
+                bbox=BBox(110, 47, 115, 53),
+            ),
+            Glyph(
+                id="stem-note",
+                page=page_number,
+                kind=SymbolKind.NOTEHEAD,
+                char="\ue0a4",
+                bbox=BBox(117, 47, 123, 53),
+            ),
+            Glyph(
+                id="same-measure-note",
+                page=page_number,
+                kind=SymbolKind.NOTEHEAD,
+                char="\ue0a4",
+                bbox=BBox(137, 47, 143, 53),
+            ),
+            Glyph(
+                id="next-measure-note",
+                page=page_number,
+                kind=SymbolKind.NOTEHEAD,
+                char="\ue0a4",
+                bbox=BBox(167, 47, 173, 53),
+            ),
+        ]
+
+
 def make_vector_pdf(path: Path) -> None:
     document = pymupdf.open()
     page = document.new_page(width=200, height=120)
@@ -93,6 +150,23 @@ def make_tied_vector_pdf(path: Path) -> None:
     tie.draw_bezier(end, pymupdf.Point(103, 47), pymupdf.Point(97, 47), start)
     tie.finish(fill=(0, 0, 0), color=None, closePath=True)
     tie.commit()
+
+    document.save(path)
+    document.close()
+
+
+def make_long_stem_vector_pdf(path: Path) -> None:
+    document = pymupdf.open()
+    page = document.new_page(width=200, height=120)
+    for y in (20, 30, 40, 50, 60):
+        page.draw_line((10, y), (190, y), width=0.4)
+
+    # Both of these lines satisfy the old coarse barline heuristic. The first
+    # is a long stem attached to ``stem-note``; the second is an unrelated
+    # vertical mark that does not cover enough of the staff to be a barline.
+    page.draw_line((123, 10), (123, 55), width=0.4)
+    page.draw_line((150, 25), (150, 55), width=0.4)
+    page.draw_line((160, 20), (160, 60), width=0.4)
 
     document.save(path)
     document.close()
@@ -153,6 +227,38 @@ def test_vector_pdf_detects_tie_between_matching_noteheads(tmp_path: Path) -> No
     assert [
         (tie.source_note_id, tie.target_note_id) for tie in score.pages[0].ties
     ] == [("tie-source", "tie-target")]
+
+
+def test_barline_detection_rejects_long_stem_and_unrelated_vertical_line(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "long-stem-score.pdf"
+    make_long_stem_vector_pdf(source)
+
+    score = LongStemSyntheticVectorParser().parse(source)
+    staff = score.pages[0].staffs[0]
+
+    assert staff.barlines == pytest.approx([160])
+    assert [(note.id, note.measure) for note in score.pages[0].notes] == [
+        ("first-note", 0),
+        ("stem-note", 0),
+        ("same-measure-note", 0),
+        ("next-measure-note", 1),
+    ]
+
+    analyzed = MusicAnalyzer().analyze(score)
+    assert [note.effective_accidental for note in analyzed.notes] == [
+        None,
+        Accidental.SHARP,
+        Accidental.SHARP,
+        None,
+    ]
+    assert [note.source for note in analyzed.notes] == [
+        None,
+        AccidentalSource.EXPLICIT,
+        AccidentalSource.CARRIED,
+        None,
+    ]
 
 
 def test_text_font_accidental_is_not_treated_as_notation(

@@ -419,15 +419,44 @@ class VectorPDFParser:
             candidates = [
                 line.position
                 for line in vertical
-                if line.length >= staff.spacing * 3
-                and line.start <= staff.top + staff.spacing
-                and line.end >= staff.bottom - staff.spacing
+                if line.length >= staff.spacing * 3.25
+                and line.start <= staff.top + staff.spacing * 0.75
+                and line.end >= staff.bottom - staff.spacing * 0.75
                 and first_note_x + staff.spacing * 0.5 < line.position
+                and staff.x0 <= line.position
                 and line.position <= staff.x1 + staff.spacing
+                and not self._touches_notehead(line, staff, staff_notes)
             ]
             staff.barlines = self._dedupe_positions(
                 candidates, tolerance=max(0.8, staff.spacing * 0.2)
             )
+
+    @staticmethod
+    def _touches_notehead(
+        line: _Line,
+        staff: Staff,
+        notes: list[RawNote],
+    ) -> bool:
+        """Return whether a vertical line is attached to a notehead.
+
+        Long stems can cover most or all of a staff and therefore satisfy the
+        same coarse height checks as barlines. Unlike barlines, a stem meets a
+        notehead at one endpoint, sometimes with a small PDF rounding gap.
+        """
+        padding = staff.spacing * 0.2
+        edge_tolerance = staff.spacing * 0.025
+        return any(
+            min(
+                abs(line.position - note.bbox.x0),
+                abs(line.position - note.bbox.x1),
+            )
+            <= edge_tolerance
+            and (
+                note.bbox.y0 - padding <= line.start <= note.bbox.y1 + padding
+                or note.bbox.y0 - padding <= line.end <= note.bbox.y1 + padding
+            )
+            for note in notes
+        )
 
     def _detect_ties(
         self,
