@@ -1,8 +1,10 @@
 # Piassist
 
+[![Tests](https://github.com/rintaro-okahara/piassist/actions/workflows/test.yml/badge.svg)](https://github.com/rintaro-okahara/piassist/actions/workflows/test.yml)
+
 楽譜PDFを解析し、♯・♭が有効な音符へベクターの丸印を重ねるPython CLIです。
 
-現在のMVPは、MuseScoreなどが出力した「五線と楽譜記号がベクター/グリフとして残っているPDF」を対象にしています。スキャンPDF向けの画像OMRは今後追加予定です。
+現在のMVPは、MuseScoreやDoricoなどが出力した「五線と楽譜記号がベクター/グリフとして残っているPDF」を対象にしています。スキャンPDF向けの画像OMRは今後追加予定です。
 
 ## 対応範囲
 
@@ -20,6 +22,12 @@
 
 - スキャンPDF・写真のOMR
 - SMuFLコードポイントを保持していない独自フォント
+
+### 検証済みのDorico出力
+
+Dorico 5.1から直接書き出された1ページのベクターPDFを、同じ譜面のMusicXMLと全音符について照合しています。検証fixtureでは281音すべての音名・オクターブ・実効臨時記号が一致し、対象78音に対してfalse positive / false negativeともに0です。
+
+入力、固定commitの出典、SHA-256、CC BY-SA 4.0の帰属表示、検証方法と目視レビューは[`tests/fixtures/purcell_what_power_dorico/`](tests/fixtures/purcell_what_power_dorico/)に記録しています。これは当該fixtureでの検証結果であり、別ソフトで後処理されたPDFや全Doricoバージョンへの対応を意味しません。
 
 ## セットアップ
 
@@ -104,6 +112,8 @@ src/piassist/
 
 PiassistはGNU Affero General Public License Version 3のみ（`AGPL-3.0-only`）の下で公開されています。詳細は[LICENSE](LICENSE)を参照してください。
 
+第三者提供のテストfixtureはAGPLの対象外です。各fixtureのNOTICEと[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)に記載されたライセンスが適用されます。
+
 ## テスト
 
 ```sh
@@ -111,3 +121,5 @@ uv run pytest
 ```
 
 テスト内で小さなベクターPDFを生成し、五線検出から調号・臨時記号の状態管理、PDF描画までを検証します。
+
+GitHub Actionsではlintと全テストをpull requestごとに実行します。Dorico実譜テストは、PDFから得た現在値をそのまま正解にせず、同じ固定commitのMusicXMLを独立oracleとして281音をnote-by-noteで比較します。

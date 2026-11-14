@@ -428,7 +428,10 @@ class VectorPDFParser:
                 and not self._touches_notehead(line, staff, staff_notes)
             ]
             staff.barlines = self._dedupe_positions(
-                candidates, tolerance=max(0.8, staff.spacing * 0.2)
+                # A final or double barline is drawn as two nearby vertical
+                # strokes, but it still represents one measure boundary.
+                candidates,
+                tolerance=max(0.8, staff.spacing),
             )
 
     @staticmethod
@@ -443,18 +446,20 @@ class VectorPDFParser:
         same coarse height checks as barlines. Unlike barlines, a stem meets a
         notehead at one endpoint, sometimes with a small PDF rounding gap.
         """
-        padding = staff.spacing * 0.2
-        edge_tolerance = staff.spacing * 0.025
+        # Dorico places stems a small distance outside the notehead glyph's
+        # reported bounding box. The gap is larger than PDF rounding noise,
+        # especially for its oversized SMuFL noteheads, so compare in staff
+        # spaces rather than using a near-zero absolute tolerance.
+        edge_tolerance = staff.spacing * 0.1
+        endpoint_tolerance = staff.spacing * 0.8
         return any(
             min(
                 abs(line.position - note.bbox.x0),
                 abs(line.position - note.bbox.x1),
             )
             <= edge_tolerance
-            and (
-                note.bbox.y0 - padding <= line.start <= note.bbox.y1 + padding
-                or note.bbox.y0 - padding <= line.end <= note.bbox.y1 + padding
-            )
+            and min(abs(line.start - note.y), abs(line.end - note.y))
+            <= endpoint_tolerance
             for note in notes
         )
 

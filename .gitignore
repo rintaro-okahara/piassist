@@ -14,3 +14,4 @@ web/samples/*.pdf
 
 # Deliberately publishable test PDFs. Keep all other PDFs local.
 !tests/fixtures/aura_lee_dorico/input.pdf
+!tests/fixtures/purcell_what_power_dorico/input.pdf
