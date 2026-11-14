@@ -100,6 +100,10 @@ src/piassist/
 
 後から画像OMRパーサを追加しても、`ScoreAnalysis` 以降の音楽ロジックと描画処理は共用できます。
 
+## ライセンス
+
+PiassistはGNU Affero General Public License Version 3のみ（`AGPL-3.0-only`）の下で公開されています。詳細は[LICENSE](LICENSE)を参照してください。
+
 ## テスト
 
 ```sh
