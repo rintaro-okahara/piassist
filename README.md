@@ -100,6 +100,10 @@ src/piassist/
 
 後から画像OMRパーサを追加しても、`ScoreAnalysis` 以降の音楽ロジックと描画処理は共用できます。
 
+## ライセンス
+
+PiassistはGNU Affero General Public License Version 3のみ（`AGPL-3.0-only`）の下で公開されています。詳細は[LICENSE](LICENSE)を参照してください。
+
 ## テスト
 
 ```sh
@@ -107,5 +111,3 @@ uv run pytest
 ```
 
 テスト内で小さなベクターPDFを生成し、五線検出から調号・臨時記号の状態管理、PDF描画までを検証します。
-
-`tests/fixtures/autumn_leaves/` には、MuseScoreで書き出された入力PDFと、正解の赤丸を含む期待出力PDFをgolden fixtureとして保存しています。生成元、ハッシュ、評価条件、実測値は同ディレクトリの `manifest.json` に記録し、テスト時にも検証します。
