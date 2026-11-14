@@ -136,24 +136,26 @@ class MusicAnalyzer:
             return {}, set()
 
         accidental_type = leading[0].accidental
-        same_type = [
-            accidental
-            for accidental in leading
-            if accidental.accidental is accidental_type
-        ]
-        if len(same_type) != len(leading) or len(leading) > 7:
+        if leading[0].bbox.center_x - clef_right > staff.spacing * 2:
             return {}, set()
 
         expected_order = (
             SHARP_ORDER if accidental_type is Accidental.SHARP else FLAT_ORDER
         )
-        observed = tuple(accidental.letter for accidental in leading)
-        if observed != expected_order[: len(observed)]:
+        signature: list[RawAccidental] = []
+        for expected_letter, accidental in zip(expected_order, leading, strict=False):
+            if (
+                accidental.accidental is not accidental_type
+                or accidental.letter != expected_letter
+            ):
+                break
+            signature.append(accidental)
+        if not signature:
             return {}, set()
 
         return (
-            {letter: accidental_type for letter in observed},
-            {accidental.id for accidental in leading},
+            {accidental.letter: accidental_type for accidental in signature},
+            {accidental.id for accidental in signature},
         )
 
     @staticmethod
@@ -171,7 +173,12 @@ class MusicAnalyzer:
             candidates = [
                 note
                 for note in notes
-                if 0 < note.bbox.x0 - accidental.bbox.x1 <= staff.spacing * 3
+                # Use music anchors rather than text-box edges. Legacy Opus
+                # accidental and notehead boxes overlap, while their centers
+                # retain a stable left-to-right relationship across fonts.
+                if 0
+                < note.bbox.center_x - accidental.bbox.center_x
+                <= staff.spacing * 4
                 and abs(note.y - accidental.bbox.center_y) <= staff.spacing * 0.85
             ]
             if not candidates:

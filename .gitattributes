@@ -1,1 +1,2 @@
 *.pdf binary
+tests/fixtures/sibelius/*/oracle.musicxml binary

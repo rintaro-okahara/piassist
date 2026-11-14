@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "datasets": {
+    "pdsa_v1_1": {
+      "title": "The Public Domain Song Anthology",
+      "authors": [
+        "David Berger",
+        "Chuck Israels"
+      ],
+      "version": "1.1",
+      "released": "2023-09-22",
+      "doi": "https://doi.org/10.18130/V3/C4RD06",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    "bpsd_v2": {
+      "title": "BPSD: A Coherent Multi-Version Dataset for Analyzing the First Movements of Beethoven's Piano Sonatas",
+      "authors": [
+        "Johannes Zeitler",
+        "Christof Weiß",
+        "Vlora Arifi-Müller",
+        "Meinard Müller"
+      ],
+      "version": "2",
+      "released": "2024-07-19",
+      "doi": "https://doi.org/10.5281/zenodo.12783403",
+      "license": "CC-BY-3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/",
+      "archive": {
+        "filename": "Beethoven_Piano_Sonata_Dataset_v2.zip",
+        "url": "https://zenodo.org/api/records/12783403/files/Beethoven_Piano_Sonata_Dataset_v2.zip/content",
+        "md5": "17f73a2d608fd6e6da65d3bd9dda1923"
+      }
+    }
+  },
+  "samples": {
+    "aura_lee": {
+      "dataset": "pdsa_v1_1",
+      "title": "AURA LEE",
+      "files": {
+        "input": {
+          "source_url": "https://dataverse.lib.virginia.edu/api/access/datafile/4403",
+          "upstream_filename": "AURA LEE.pdf",
+          "md5": "dce96f1e7d3dfb559cfd17f17c3cbb01",
+          "sha256": "362a4e4990191bf46c13209acf4b1d8f78b09f13d9b41d89fec7480e37401fa4"
+        },
+        "oracle": {
+          "source_url": "https://dataverse.lib.virginia.edu/api/access/datafile/4332",
+          "upstream_filename": "AURA LEE.xml",
+          "md5": "d047b8cbd39a7215da9994eef5df6efb",
+          "sha256": "eb0d063b3d05d25447100366931c56338d85190d4beff86d08bf7dedc6c6fe7b"
+        },
+        "sibelius_source": {
+          "source_url": "https://dataverse.lib.virginia.edu/api/access/datafile/3744",
+          "upstream_filename": "AURA LEE.sib",
+          "md5": "b45dc4dbb7039c70165fd89dc0d0a105"
+        }
+      },
+      "export": {
+        "pdf_creator": "Sibelius version 18.5.0 on Windows 7\n",
+        "pdf_producer": "Qt 4.8.0 (C) 2011 Nokia Corporation and/or its subsidiary(-ies)",
+        "musicxml_software": "Sibelius 19.5.0",
+        "pages": 1,
+        "images_by_page": [0]
+      },
+      "opus_glyphs": {
+        "noteheads": {"œ": 44, "˙": 2, "w": 4},
+        "accidentals": {"b": 8, "n": 0, "#": 0},
+        "clefs": {"&": 4, "?": 0}
+      },
+      "expected": {
+        "staffs_by_page": [4],
+        "notes_by_page": [50],
+        "accidentals_by_page": [8],
+        "tie_detection_baseline_by_page": [0],
+        "barlines_by_staff": [[4, 4, 4, 4]],
+        "parts": 1,
+        "notes_by_part": [50]
+      }
+    },
+    "beale_street_blues": {
+      "dataset": "pdsa_v1_1",
+      "title": "BEALE STREET BLUES",
+      "files": {
+        "input": {
+          "source_url": "https://dataverse.lib.virginia.edu/api/access/datafile/4412",
+          "upstream_filename": "BEALE STREET BLUES.pdf",
+          "md5": "e62f965daba47005699612d4eeeb09ef",
+          "sha256": "085f47f50eec89a9728ca7ce4cecd38365fe1d105828b8f42529ac48683941b9"
+        },
+        "oracle": {
+          "source_url": "https://dataverse.lib.virginia.edu/api/access/datafile/3775",
+          "upstream_filename": "BEALE STREET BLUES.xml",
+          "md5": "fc6b340f625a3add88307044b7d1714f",
+          "sha256": "f4e204b6775eefe92c68899b41013fa8f0b7698738611293439136db32732ebf"
+        },
+        "sibelius_source": {
+          "source_url": "https://dataverse.lib.virginia.edu/api/access/datafile/3728",
+          "upstream_filename": "BEALE STREET BLUES.sib",
+          "md5": "c49ef0d95190a5ebbc5fb83cc0963a25"
+        }
+      },
+      "export": {
+        "pdf_creator": "Sibelius version 18.5.0 on Windows 7\n",
+        "pdf_producer": "Qt 4.8.0 (C) 2011 Nokia Corporation and/or its subsidiary(-ies)",
+        "musicxml_software": "Sibelius 19.5.0",
+        "pages": 2,
+        "images_by_page": [0, 0]
+      },
+      "opus_glyphs": {
+        "noteheads": {"œ": 132, "˙": 10, "w": 7},
+        "accidentals": {"b": 33, "n": 4, "#": 9},
+        "clefs": {"&": 10, "?": 0}
+      },
+      "expected": {
+        "staffs_by_page": [6, 4],
+        "notes_by_page": [101, 48],
+        "accidentals_by_page": [29, 17],
+        "tie_detection_baseline_by_page": [16, 9],
+        "barlines_by_staff": [[4, 4, 5, 3, 3, 3], [4, 4, 4, 3]],
+        "parts": 1,
+        "notes_by_part": [149]
+      }
+    },
+    "beautiful_ohio": {
+      "dataset": "pdsa_v1_1",
+      "title": "BEAUTIFUL OHIO",
+      "files": {
+        "input": {
+          "source_url": "https://dataverse.lib.virginia.edu/api/access/datafile/4414",
+          "upstream_filename": "BEAUTIFUL OHIO.pdf",
+          "md5": "a27b65ea9ecc04006980c313b33042e3",
+          "sha256": "0bcb8e68bfa7f9e387caab00d62f41491b14a8f1bf586d7de6e31f26a68fafdc"
+        },
+        "oracle": {
+          "source_url": "https://dataverse.lib.virginia.edu/api/access/datafile/4360",
+          "upstream_filename": "BEAUTIFUL OHIO.xml",
+          "md5": "643207b8c17457904dbb28a2bc8b23ec",
+          "sha256": "a76da6070d5751359498d4a2371e6e6a5ee9346ea90305ea752e8fb5f89abcd5"
+        },
+        "sibelius_source": {
+          "source_url": "https://dataverse.lib.virginia.edu/api/access/datafile/4251",
+          "upstream_filename": "BEAUTIFUL OHIO.sib",
+          "md5": "ba38c611dfd8508a34b2d0f93681125f"
+        }
+      },
+      "export": {
+        "pdf_creator": "Sibelius version 18.5.0 on Windows 7\n",
+        "pdf_producer": "Qt 4.8.0 (C) 2011 Nokia Corporation and/or its subsidiary(-ies)",
+        "musicxml_software": "Sibelius 19.5.0",
+        "pages": 2,
+        "images_by_page": [0, 0]
+      },
+      "opus_glyphs": {
+        "noteheads": {"œ": 78, "˙": 49, "w": 0},
+        "accidentals": {"b": 56, "n": 9, "#": 0},
+        "clefs": {"&": 16, "?": 0}
+      },
+      "expected": {
+        "staffs_by_page": [8, 8],
+        "notes_by_page": [58, 69],
+        "accidentals_by_page": [32, 33],
+        "tie_detection_baseline_by_page": [0, 2],
+        "barlines_by_staff": [[4, 4, 4, 4, 4, 4, 4, 4], [4, 4, 4, 4, 4, 4, 4, 4]],
+        "parts": 2,
+        "notes_by_part": [76, 51]
+      }
+    },
+    "beethoven_op27_no2_i": {
+      "dataset": "bpsd_v2",
+      "title": "Beethoven Op. 27 No. 2, movement I",
+      "files": {
+        "input": {
+          "archive_member": "0_RawData/score_pdf_repetitions/Beethoven_Op027No2-01.pdf",
+          "md5": "0f3bf2d090230b1df037a4dca6497207",
+          "sha256": "2aed1f83dc06f585f6996b317d9911ea4f03285aac5d8d78abe038570fe8e828"
+        },
+        "oracle": {
+          "archive_member": "0_RawData/score_xml_repetitions/Beethoven_Op027No2-01.xml",
+          "md5": "16a1f27697da0c858fa12fc903ef18c9",
+          "sha256": "d9d5f46ce2d2758248a921974a1b2f09a647fb128f9cb7fbe1bed05464b24ff9"
+        },
+        "sibelius_source": {
+          "archive_member": "0_RawData/score_sibelius_repetitions/Beethoven_Op027No2-01.sib",
+          "md5": "81c9646d768b98233fd0f7ffaa38b3f1"
+        }
+      },
+      "export": {
+        "pdf_creator": "Sibelius version 8.2.0 on Windows 8\n",
+        "pdf_producer": "Qt 4.8.0 (C) 2011 Nokia Corporation and/or its subsidiary(-ies)",
+        "musicxml_software": "Sibelius 8.2.0",
+        "pages": 3,
+        "images_by_page": [0, 0, 0]
+      },
+      "opus_glyphs": {
+        "noteheads": {"œ": 956, "˙": 148, "w": 77},
+        "accidentals": {"b": 0, "n": 46, "#": 219},
+        "clefs": {"&": 18, "?": 18}
+      },
+      "expected": {
+        "staffs_by_page": [10, 14, 12],
+        "notes_by_page": [329, 460, 392],
+        "musicxml_note_elements": 1182,
+        "pdf_notehead_glyphs": 1181,
+        "shared_notehead": {
+          "measure": 15,
+          "staff": 1,
+          "letter": "B",
+          "octave": 3
+        },
+        "accidentals_by_page": [85, 105, 75],
+        "tie_detection_baseline_by_page": [0, 1, 2],
+        "barlines_by_staff": [
+          [3, 3, 4, 4, 4, 4, 4, 4, 4, 4],
+          [3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+          [4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 5, 5]
+        ],
+        "system_measure_ranges": [
+          [[1, 3], [4, 7], [8, 11], [12, 15], [16, 19]],
+          [[20, 22], [23, 26], [27, 30], [31, 34], [35, 38], [39, 42], [43, 46]],
+          [[47, 50], [51, 54], [55, 58], [59, 61], [62, 64], [65, 69]]
+        ]
+      }
+    }
+  }
+}

@@ -136,7 +136,7 @@ def make_vector_pdf(path: Path) -> None:
     document.close()
 
 
-def make_tied_vector_pdf(path: Path) -> None:
+def make_tied_vector_pdf(path: Path, *, fill_and_stroke: bool = False) -> None:
     document = pymupdf.open()
     page = document.new_page(width=200, height=120)
     for y in (20, 30, 40, 50, 60):
@@ -148,7 +148,12 @@ def make_tied_vector_pdf(path: Path) -> None:
     end = pymupdf.Point(107, 45)
     tie.draw_bezier(start, pymupdf.Point(97, 49), pymupdf.Point(103, 49), end)
     tie.draw_bezier(end, pymupdf.Point(103, 47), pymupdf.Point(97, 47), start)
-    tie.finish(fill=(0, 0, 0), color=None, closePath=True)
+    tie.finish(
+        fill=(0, 0, 0),
+        color=(0, 0, 0) if fill_and_stroke else None,
+        width=0.1,
+        closePath=True,
+    )
     tie.commit()
 
     document.save(path)
@@ -227,6 +232,20 @@ def test_vector_pdf_detects_tie_between_matching_noteheads(tmp_path: Path) -> No
         ("tie-source", 0),
         ("tie-target", 1),
     ]
+    assert [
+        (tie.source_note_id, tie.target_note_id) for tie in score.pages[0].ties
+    ] == [("tie-source", "tie-target")]
+
+
+def test_vector_pdf_detects_sibelius_fill_and_stroke_tie(tmp_path: Path) -> None:
+    source = tmp_path / "sibelius-tied-score.pdf"
+    make_tied_vector_pdf(source, fill_and_stroke=True)
+
+    with pymupdf.open(source) as document:
+        assert any(drawing["type"] == "fs" for drawing in document[0].get_drawings())
+
+    score = TiedSyntheticVectorParser().parse(source)
+
     assert [
         (tie.source_note_id, tie.target_note_id) for tie in score.pages[0].ties
     ] == [("tie-source", "tie-target")]
