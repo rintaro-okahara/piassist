@@ -15,3 +15,7 @@ web/samples/*.pdf
 # Deliberately publishable test PDFs. Keep all other PDFs local.
 !tests/fixtures/aura_lee_dorico/input.pdf
 !tests/fixtures/purcell_what_power_dorico/input.pdf
+!tests/fixtures/sibelius/aura_lee/input.pdf
+!tests/fixtures/sibelius/beale_street_blues/input.pdf
+!tests/fixtures/sibelius/beautiful_ohio/input.pdf
+!tests/fixtures/sibelius/beethoven_op27_no2_i/input.pdf

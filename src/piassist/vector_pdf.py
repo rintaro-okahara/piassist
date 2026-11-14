@@ -50,6 +50,22 @@ SYMBOLS: dict[str, SymbolKind] = {
     "\U0001d122": SymbolKind.BASS_CLEF,
 }
 
+# Sibelius' legacy Opus music font predates SMuFL. Its PDF ToUnicode map
+# exposes notation as ordinary-looking characters, so these values must only
+# be interpreted inside the actual notation face (never in lyrics or chord
+# names). The note values differ by duration, but all three share the same
+# notehead anchor used by the pitch detector.
+SIBELIUS_OPUS_SYMBOLS: dict[str, SymbolKind] = {
+    "œ": SymbolKind.NOTEHEAD,
+    "˙": SymbolKind.NOTEHEAD,
+    "w": SymbolKind.NOTEHEAD,
+    "b": SymbolKind.FLAT,
+    "n": SymbolKind.NATURAL,
+    "#": SymbolKind.SHARP,
+    "&": SymbolKind.TREBLE_CLEF,
+    "?": SymbolKind.BASS_CLEF,
+}
+
 ACCIDENTAL_FOR_KIND = {
     SymbolKind.FLAT: Accidental.FLAT,
     SymbolKind.NATURAL: Accidental.NATURAL,
@@ -185,12 +201,33 @@ class VectorPDFParser:
                         value = char.get("c", "")
                         bbox = char.get("bbox")
                         if value and bbox and len(bbox) == 4:
-                            yield value, BBox(*map(float, bbox)), font
+                            glyph_bbox = BBox(*map(float, bbox))
+                            origin = char.get("origin")
+                            if (
+                                self._is_sibelius_opus_notation_font(font)
+                                and value in SIBELIUS_OPUS_SYMBOLS
+                                and origin
+                                and len(origin) == 2
+                            ):
+                                # For Opus glyphs, the text origin is the
+                                # musical anchor (the notehead/accidental
+                                # pitch). PyMuPDF's generic text bbox is based
+                                # on the font ascent and sits roughly one staff
+                                # space too high. Preserve its dimensions while
+                                # moving the center onto the music anchor.
+                                offset_y = float(origin[1]) - glyph_bbox.center_y
+                                glyph_bbox = BBox(
+                                    glyph_bbox.x0,
+                                    glyph_bbox.y0 + offset_y,
+                                    glyph_bbox.x1,
+                                    glyph_bbox.y1 + offset_y,
+                                )
+                            yield value, glyph_bbox, font
 
     def _extract_glyphs(self, page: pymupdf.Page, page_number: int) -> list[Glyph]:
         glyphs: list[Glyph] = []
         for index, (char, bbox, font) in enumerate(self._raw_chars(page)):
-            kind = SYMBOLS.get(char)
+            kind = self._symbol_kind(char, font)
             if kind is not None and self._is_notation_symbol(char, font):
                 glyphs.append(
                     Glyph(
@@ -203,6 +240,19 @@ class VectorPDFParser:
                     )
                 )
         return glyphs
+
+    @classmethod
+    def _symbol_kind(cls, char: str, font: str) -> SymbolKind | None:
+        if cls._is_sibelius_opus_notation_font(font):
+            return SIBELIUS_OPUS_SYMBOLS.get(char)
+        return SYMBOLS.get(char)
+
+    @staticmethod
+    def _is_sibelius_opus_notation_font(font: str) -> bool:
+        normalized = font.casefold().replace(" ", "")
+        return normalized in {"opus", "opusstd"} or normalized.endswith(
+            "+opusstd"
+        )
 
     @staticmethod
     def _is_notation_symbol(char: str, font: str) -> bool:
@@ -416,13 +466,21 @@ class VectorPDFParser:
         for staff in staffs:
             staff_notes = [note for note in notes if note.staff == staff.index]
             first_note_x = min((note.x for note in staff_notes), default=staff.x0)
+            leading_region_end = staff.x0 + (staff.x1 - staff.x0) * 0.12
             candidates = [
                 line.position
                 for line in vertical
                 if line.length >= staff.spacing * 3.25
                 and line.start <= staff.top + staff.spacing * 0.75
                 and line.end >= staff.bottom - staff.spacing * 0.75
-                and first_note_x + staff.spacing * 0.5 < line.position
+                # A system can begin with one or more rest-only measures, so
+                # its first genuine barline may precede the first notehead.
+                # Keep those distant boundaries while excluding a left repeat
+                # bar or system edge inside the leading notation region.
+                and (
+                    first_note_x + staff.spacing * 0.5 < line.position
+                    or leading_region_end < line.position
+                )
                 and staff.x0 <= line.position
                 and line.position <= staff.x1 + staff.spacing
                 and not self._touches_notehead(line, staff, staff_notes)
@@ -453,11 +511,12 @@ class VectorPDFParser:
         edge_tolerance = staff.spacing * 0.1
         endpoint_tolerance = staff.spacing * 0.8
         return any(
-            min(
-                abs(line.position - note.bbox.x0),
-                abs(line.position - note.bbox.x1),
-            )
-            <= edge_tolerance
+            # SMuFL notehead boxes usually end at the stem. Sibelius' Opus
+            # boxes are wider and can contain the stem position, so accept the
+            # whole horizontal glyph extent plus a small rounding margin.
+            note.bbox.x0 - edge_tolerance
+            <= line.position
+            <= note.bbox.x1 + edge_tolerance
             and min(abs(line.start - note.y), abs(line.end - note.y))
             <= endpoint_tolerance
             for note in notes
@@ -486,7 +545,7 @@ class VectorPDFParser:
             items = drawing.get("items", [])
             curve_count = sum(item and item[0] == "c" for item in items)
             if (
-                drawing.get("type") != "f"
+                drawing.get("type") not in {"f", "fs"}
                 or curve_count != 2
                 or any(item and item[0] not in {"c", "l"} for item in items)
             ):

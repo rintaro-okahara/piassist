@@ -27,3 +27,14 @@ uv run piassist annotate tests/fixtures/aura_lee_dorico/input.pdf \
 - `REVIEW.md`: note-by-note照合と目視確認の記録
 
 このfixtureではPDFの281音をMusicXMLと譜面順に照合します。78対象音についてfalse positive / false negativeが0であること、小節ごとの音符数、各段の対象音位置、最終PDF描画数まで自動テストします。実装が現在出している件数をそのまま正解にしたbaselineではありません。
+
+## `sibelius/`
+
+- `aura_lee/`: 1ページのlead sheet
+- `beale_street_blues/`: 2ページ、反復・volta・tripletを含むlead sheet
+- `beautiful_ohio/`: 2-part / 2-staff ensemble
+- `beethoven_op27_no2_i/`: 3ページのpiano grand staff
+- `manifest.json`: 固定DOI/datafile、上流`.sib`の所在、checksum、Sibelius metadata、構造oracle
+- `NOTICE.md`: PDSAのCC0-1.0とBPSDのCC BY 3.0に関する帰属・変更表示
+
+Sibelius固有のlegacy Opus encodingと文字originを検証します。PDSA 3件は全326音をMusicXMLとnote-by-noteで照合し、Beethovenは1181 PDF notehead glyphsをsystem/staffごとのMusicXML音高と照合します。詳しい検証範囲と既知のtie制約は[`sibelius/README.md`](sibelius/README.md)を参照してください。
